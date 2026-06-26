@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saude+ Chat de Triagem</title>
+    <style>
+      :root {
+        --saude-blue: #64bdf3;
+        --saude-text-blue: #5cb3e9;
+        --bg-light: #f7f9fa;
+        --text-dark: #2b3a4a;
+        --border-card: #bce3fb;
+      }
+
+      body {
+        font-family:
+          "Segoe UI",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        background-color: #f0f4f8;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .message.bot h3 {
+        margin: 12px 0 6px;
+        color: var(--saude-text-blue);
+        font-size: 16px;
+      }
+
+      .message.bot p {
+        margin: 0 0 10px;
+      }
+
+      .message.bot ul {
+        margin: 0 0 10px 20px;
+        padding: 0;
+      }
+
+      .message.bot li {
+        margin-bottom: 4px;
+      }
+
+      .chat-container {
+        width: 100%;
+        max-width: 600px;
+        height: 85vh;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(100, 189, 243, 0.15);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border: 1px solid #e1eef5;
+      }
+
+      .chat-header {
+        background-color: var(--saude-blue);
+        color: white;
+        padding: 18px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+      }
+
+      .chat-messages {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        background-color: var(--bg-light);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .message {
+        max-width: 80%;
+        padding: 14px 18px;
+        border-radius: 12px;
+        font-size: 15px;
+        line-height: 1.5;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      }
+
+      .message.user {
+        background-color: #e6f6ff;
+        color: #1e6091;
+        align-self: flex-end;
+        white-space: pre-wrap;
+        border: 1px solid var(--border-card);
+        border-bottom-right-radius: 0;
+      }
+
+      .message.bot {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        background-color: #ffffff;
+        color: var(--text-dark);
+        align-self: flex-start;
+        border: 1px solid var(--border-card);
+        border-bottom-left-radius: 0;
+      }
+
+      .message.loading {
+        color: var(--saude-text-blue);
+        font-style: italic;
+        border: 1px dashed var(--saude-blue);
+      }
+
+      .chat-input-area {
+        padding: 16px;
+        background: #ffffff;
+        display: flex;
+        gap: 12px;
+        border-top: 1px solid #edf2f7;
+      }
+
+      .chat-input-area input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid #d2e4f0;
+        border-radius: 8px;
+        outline: none;
+        font-size: 15px;
+      }
+
+      .chat-input-area input:focus {
+        border-color: var(--saude-blue);
+      }
+
+      .chat-input-area button {
+        background-color: var(--saude-blue);
+        color: white;
+        border: none;
+        padding: 0 22px;
+        border-radius: 8px;
+        font-weight: bold;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+
+      .chat-input-area button:hover {
+        background-color: #4faee6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chat-container">
+      <div class="chat-header">🤖 Assistente de Triagem Médica</div>
+
+      <div class="chat-messages" id="chatBox">
+        <div class="message bot">
+      Olá! Bem-vindo ao canal de triagem Saude+. Descreva aqui os sintomas atuais para identificarmos as especialidades médicas recomendadas.
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <input
+          type="text"
+          id="userInput"
+          placeholder="Digite seus sintomas aqui..."
+          onkeypress="verificarTecla(event)"
+        />
+        <button onclick="enviarMensagem()">Enviar</button>
+      </div>
+    </div>
+
+    <script>
+      const chatBox = document.getElementById("chatBox");
+      const userInput = document.getElementById("userInput");
+
+      function verificarTecla(event) {
+        if (event.key === "Enter") {
+          enviarMensagem();
+        }
+      }
+
+      function adicionarResultado(triagem) {
+        const adicionais = triagem.especialidades_adicionais || [];
+        const corUrgencia = {
+          "Baixa": "#4CAF50",
+          "Moderada": "#FFC107",
+          "Alta": "#FF9800",
+          "Emergência": "#F44336"
+        }[triagem.urgencia] || "#999";
+
+        const card = document.createElement("div");
+        card.className = "message bot";
+
+        card.innerHTML = `
+        <h3>🏥 Especialidade sugerida</h3>
+        <p>${triagem.especialidade || "Não informado"}</p>
+
+        <h3>📝 Motivo</h3>
+        <p>${triagem.motivo || "Não informado"}</p>
+
+        <h3>🚨 Urgência</h3>
+        <p style="color:${corUrgencia}; font-weight:bold;">${triagem.urgencia || "Não informado"}</p>
+
+        <h3>🔎 Especialidades adicionais</h3>
+        <ul>
+        ${
+          adicionais.length
+            ? adicionais.map((e) => `<li>${e}</li>`).join("")
+            : "<li>Nenhuma</li>"
+          }
+        </ul>
+
+        <p><strong>⚠️ ${triagem.orientacao || "Esta resposta não substitui avaliação médica profissional."}</strong></p>`;
+
+        chatBox.appendChild(card);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }
+
+      async function enviarMensagem() {
+        const textoSintoma = userInput.value.trim();
+        if (!textoSintoma) return;
+
+        adicionarBalao(textoSintoma, "user");
+        userInput.value = "";
+
+        const balaoCarregando = adicionarBalao(
+          "Analisando sintomas no Saude+...",
+          "bot loading",
+        );
+
+        try {
+          const response = await fetch("/api/llm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: textoSintoma }),
+          });
+
+          const data = await response.json();
+
+          balaoCarregando.remove();
+          if (response.ok && data.triagem) {
+            adicionarResultado(data.triagem);
+          } else {
+            adicionarBalao(
+              data.erro || "Erro temporário na central Saude+.",
+              "bot",
+            );
+          }
+        } catch (error) {
+          console.error(error);
+          balaoCarregando.remove();
+          adicionarBalao("Sem conexão com o servidor local do Saude+.", "bot");
+        }
+      }
+
+      function adicionarBalao(texto, remetente) {
+        const novoBalao = document.createElement("div");
+        novoBalao.className = `message ${remetente}`;
+        novoBalao.textContent = texto;
+
+        chatBox.appendChild(novoBalao);
+        chatBox.scrollTop = chatBox.scrollHeight;
+
+        return novoBalao;
+      }
+    </script>
+  </body>
+</html>
