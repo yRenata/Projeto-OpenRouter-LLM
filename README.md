@@ -34,7 +34,9 @@ SaudePlus/
 ├── server.js
 ├── package.json
 ├── package-lock.json
-└── .env
+└── .gitignore
+  └── /node_modules
+  └── .env
 ```
 
 ---
