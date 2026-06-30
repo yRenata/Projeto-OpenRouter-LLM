@@ -2,7 +2,7 @@
 
 ## 📌 Sobre o projeto
 
-O Saúde+ é um protótipo desenvolvido para a disciplina de Projeto de Desenvolvimento 1 e pretendo integrar esse Assistente usando LLM para ajudar os usuários a procurar o médico especialista ideal para seu caso.
+O Saúde+ é um protótipo desenvolvido para a disciplina de Projeto de Desenvolvimento 1 e pretendo integrar esse Assistente usando LLM para ajudar os usuários a procurar o médico especialista ideal para cada caso.
 
 O objetivo da aplicação é auxiliar o usuário na identificação da especialidade médica mais adequada para avaliar os sintomas informados.
 
